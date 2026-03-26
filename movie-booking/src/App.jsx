@@ -2,22 +2,23 @@ import { useState } from "react";
 import MovieList from "./components/MovieList";
 import SeatBooking from "./components/SeatBooking";
 import BookingHistory from "./components/BookingHistory";
+import './App.css'
 
 function App() {
 
   const [selectedMovie, setSelectedMovie] = useState(null);
 
   return (
-    <div className="container">
+    <div className="text-center flex flex-col gap-2 p-3 bg-[#f2cc8f] min-h-screen">
 
-      <h1>🎬 Movie Booking System</h1>
+      <h1 className="text-4xl font-bold bg-[#81b29a] rounded-2xl mx-auto p-3">🎬 Movie Booking System</h1>
 
       {!selectedMovie ? (
         <MovieList setSelectedMovie={setSelectedMovie}/>
       ) : (
         <SeatBooking movie={selectedMovie} goBack={()=>setSelectedMovie(null)}/>
       )}
-
+      <hr/>
       <BookingHistory/>
 
     </div>

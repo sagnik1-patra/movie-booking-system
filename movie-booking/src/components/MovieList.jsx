@@ -1,37 +1,109 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import '../App.css'
 
 function MovieList({ setSelectedMovie }) {
 
   const [movies, setMovies] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isloading, setIsLoading] = useState(false)
 
   useEffect(() => {
-
     axios.get("https://api.tvmaze.com/shows")
       .then(res => {
-        setMovies(res.data.slice(0,10));
+        setMovies(res.data.slice(0,20));
       });
 
   }, []);
 
+  const handleSearch = () =>{
+    if(searchQuery.trim() === ""){
+      axios.get("https://api.tvmaze.com/shows")
+        .then(res=> setMovies(res.data.slice(0,20)))
+      return 
+    }
+    setIsLoading(true);
+    axios.get(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(searchQuery)}`)
+      .then(res =>{
+        const result = res.data.map(item=>item.show)
+        setMovies(result)
+        setIsLoading(false)
+      })
+      .catch(()=>setIsLoading(false))
+    
+  }
+
+  const handleKeyDown = (e) =>{
+    if(e.key === "Enter") handleSearch()
+  }
+
   return (
     <div>
 
-      <h2>Available Movies</h2>
+      <h2 className="text-2xl mt-2 mb-4 font-bold underline">Available Movies</h2>
+      {/* Search Bar */}
+      <div className="flex justify-center mb-4">
+        <div className="flex w-full max-w-md gap-2">
+          <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
+              🔍
+              </span>
+              <input 
+              type="text" 
+              placeholder="Search movies or shows"
+              value={searchQuery}
+              onKeyDown={handleKeyDown}
+              onChange={(e)=>setSearchQuery(e.target.value)}
+              className="w-full pl-10 py-2 pr-4 rounded-xl border-2 border-[#3db405b]/30 bg-white/80
+              shadow-md focus:outline-none  focus:border-[#e07a5f] focus:ring-2 focus:ring-[#e07a5f]/3 text-[#3d405b] placeholder-gray-400 transition-all duration-200 
+              "
+              />
+          </div>
+          <button
+          onClick={handleSearch}
+          className="px-4 py-2 bg-[#e07a5f] text-white
+          rounded-xl font-semibold shadow-md hover:bg-[#c9604a] active:scale-95 cursor-pointer transition-all duration-200
+          ">
+            Search
+          </button>
+        </div>
+      </div>
 
-      <div className="movie-grid">
+      {isloading &&
+        <p className="font-semibold text-[#3d405b] mb-2">
+          Searching.....
+        </p>
+      }
+
+      {!isloading && movies.length === 0 && searchQuery && (
+        <p className="text-red-500 font-semibold mb-2">
+          Result Not Found
+        </p>
+      )}
+      <div className="movie-grid grid grid-cols-5">
 
         {movies.map(movie => (
 
-          <div className="movie-card" key={movie.id}>
+          <div className="movie-card flex flex-col items-center text-center bg-[#f4f1de] m-2 rounded-2xl shadow-lg shadow-[#3d405b] mb-4 " key={movie.id}>
 
-            <img src={movie.image?.medium} />
+            <img className="rounded-2xl m-2 shadow-lg shadow-[#e07a5f]" src={movie.image?.medium} />
 
-            <h3>{movie.name}</h3>
+            <div className="m-2">
+              <h3 className="text-xl  font-bold">{movie.name}</h3>
 
-            <button onClick={()=>setSelectedMovie(movie)}>
-              Book Ticket
-            </button>
+
+              <button className="border shadow-xl bg-amber-50 px-2 py-1 rounded-lg m-1 hover:bg-amber-500/40 cursor-pointer" 
+              onClick={()=>setSelectedMovie(movie)}
+              >
+                Book Ticket
+              </button>
+              <button className="border shadow-xl bg-amber-50 px-2 py-1 rounded-lg m-1 hover:bg-amber-500/40 cursor-pointer" 
+              
+              >
+                <a href={`${movie?.url}`}>Watch</a>
+              </button>
+            </div>
+
 
           </div>
 

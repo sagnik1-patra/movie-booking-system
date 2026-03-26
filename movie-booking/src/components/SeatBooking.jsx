@@ -48,11 +48,11 @@ function SeatBooking({ movie, goBack }) {
 
   return (
 
-    <div>
+    <div className="flex flex-col">
 
-      <h2>{movie.name}</h2>
+      <h2 className="text-2xl font-bold">{movie.name}</h2>
 
-      <div className="seats">
+      <div className="grid grid-cols-5 gap-2 justify-center w-[20%] m-auto">
 
         {seats.map(seat => {
           const isBooked = bookedSeat.includes(seat)
@@ -61,12 +61,19 @@ function SeatBooking({ movie, goBack }) {
 
           <button
             key={seat}
-            className={`${isBooked?"booked":""} ${isSelected? "selected":""}`}
-            onClick={()=>toggleSeat(seat)}
+            onClick={() => toggleSeat(seat)}
             disabled={isBooked}
+            className={`border border-black rounded p-2 text-center transition
+              ${
+                isBooked
+                  ? "bg-red-400 cursor-not-allowed"
+                  : isSelected
+                  ? "bg-green-500 text-white"
+                  : "bg-white hover:bg-blue-100"
+              }
+            `}
           >
-            {seat}
-            
+              {seat}
           </button>
 
         )})}
@@ -75,8 +82,11 @@ function SeatBooking({ movie, goBack }) {
 
       <br/>
 
-      <button onClick={confirmBooking}>Confirm Booking</button>
-      <button onClick={goBack}>Back</button>
+      <div className="flex flex-col gap-2 justify-center items-center">
+
+        <button className="border m-auto py-1 px-2 rounded-lg bg-[#e07a5f] text-lg font-bold" onClick={confirmBooking}>Confirm Booking</button>
+        <button className="border m-auto py-1 px-2 rounded-lg bg-[#e07a5f] text-lg font-bold" onClick={goBack}>Back</button>
+      </div>
 
     </div>
 
