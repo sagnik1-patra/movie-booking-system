@@ -1,26 +1,40 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import '../App.css'
 
-function MovieList({ setSelectedMovie }) {
+import { Pagination, Stack } from "@mui/material";
+import '../App.css'
+function MovieList() {
+  const navigate = useNavigate();
 
   const [movies, setMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState("")
   const [isloading, setIsLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const[totalPage, setTotalPage] = useState(0)
+  const handlePageChange = (e, value)=>{
+    setPage(value)
+  }
 
   useEffect(() => {
+    const start = (page - 1) * 20;
     axios.get("https://api.tvmaze.com/shows")
       .then(res => {
-        setMovies(res.data.slice(0,20));
+        setTotalPage(Math.ceil(res.data.length / 20));
+        setMovies(res.data.slice(start, start + 20));
       });
 
-  }, []);
+  }, [page]);
 
   const handleSearch = () =>{
     if(searchQuery.trim() === ""){
+      const start = (page - 1) * 20;
       axios.get("https://api.tvmaze.com/shows")
-        .then(res=> setMovies(res.data.slice(0,20)))
-      return 
+        .then(res => {
+          setTotalPage(Math.ceil(res.data.length / 20));
+          setMovies(res.data.slice(start, start + 20));
+        });
+      return
     }
     setIsLoading(true);
     axios.get(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(searchQuery)}`)
@@ -38,11 +52,10 @@ function MovieList({ setSelectedMovie }) {
   }
 
   return (
-    <div>
+    <div className="pt-5 bg-[#f2cc8f]">
 
-      <h2 className="text-2xl mt-2 mb-4 font-bold underline">Available Movies</h2>
       {/* Search Bar */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-4 ">
         <div className="flex w-full max-w-md gap-2">
           <div className="relative flex-1">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
@@ -62,7 +75,7 @@ function MovieList({ setSelectedMovie }) {
           <button
           onClick={handleSearch}
           className="px-4 py-2 bg-[#e07a5f] text-white
-          rounded-xl font-semibold shadow-md hover:bg-[#c9604a] active:scale-95 cursor-pointer transition-all duration-200
+          rounded-xl font-semibold shadow-md hover:bg-[#c8604c] active:scale-95 cursor-pointer transition-all duration-200
           ">
             Search
           </button>
@@ -70,13 +83,13 @@ function MovieList({ setSelectedMovie }) {
       </div>
 
       {isloading &&
-        <p className="font-semibold text-[#3d405b] mb-2">
+        <p className="font-semibold text-[#59595e] mb-2 text-center">
           Searching.....
         </p>
       }
 
       {!isloading && movies.length === 0 && searchQuery && (
-        <p className="text-red-500 font-semibold mb-2">
+        <p className="text-red-500 fixed text-3xl top-1/2 left-2/5 font-semibold mb-2 text-center">
           Result Not Found
         </p>
       )}
@@ -93,7 +106,7 @@ function MovieList({ setSelectedMovie }) {
 
 
               <button className="border shadow-xl bg-amber-50 px-2 py-1 rounded-lg m-1 hover:bg-amber-500/40 cursor-pointer" 
-              onClick={()=>setSelectedMovie(movie)}
+              onClick={() => navigate('/booking', { state: { movie } })}
               >
                 Book Ticket
               </button>
@@ -109,6 +122,11 @@ function MovieList({ setSelectedMovie }) {
 
         ))}
 
+      </div>
+      <div className="flex flex-1 justify-center items-center py-3 bg-white/30">
+        <Stack spacing={2}>
+          <Pagination count={totalPage} onChange={handlePageChange} shape="rounded" page={page} color="primary"/>
+        </Stack>
       </div>
 
     </div>

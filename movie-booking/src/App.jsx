@@ -9,7 +9,7 @@ function App() {
   const [selectedMovie, setSelectedMovie] = useState(null);
 
   return (
-    <div className="text-center flex flex-col gap-2 p-3 bg-[#f2cc8f] min-h-screen">
+    <div className="flex flex-col p-10 bg-[#f2cc8f] min-h-screen">
 
       <h1 className="text-4xl font-bold bg-[#81b29a] rounded-2xl mx-auto p-3">🎬 Movie Booking System</h1>
 

@@ -47,13 +47,16 @@ background:green !important;
 color:white;
 }
 */
-.booking{
-    border: 1px solid #000;
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: 10px auto; 
+
+
+/* Works for most browsers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE, Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 /* .seats button.booked{
     background: red !important;

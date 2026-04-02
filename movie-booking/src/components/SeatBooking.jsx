@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import '../App.css'
 
-function SeatBooking({ movie, goBack }) {
+function SeatBooking() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const movie = location.state?.movie;
 
   const seats = Array.from({length: 20}, (_,i)=>i+1);
 
@@ -9,12 +13,17 @@ function SeatBooking({ movie, goBack }) {
   const [bookedSeat, setBookedSeat] = useState([])
 
   useEffect(()=>{
+    if (!movie) return;
     const stored = JSON.parse(localStorage.getItem("bookings"))|| []
     
     const currentMovieBookings = stored.filter(b => b.movie === movie.name);
     const taken = currentMovieBookings.flatMap(b=>b.seats)
     setBookedSeat(taken)
-  },[movie.name])
+  },[movie?.name])
+
+  if (!movie) {
+    return <Navigate to="/" />;
+  }
   const toggleSeat = (seat) => {
     if(bookedSeat.includes(seat)) return;
     if(selectedSeats.includes(seat)){
@@ -32,6 +41,7 @@ function SeatBooking({ movie, goBack }) {
     }
 
     const booking = {
+      imageUrl:movie.image,
       movie: movie.name,
       seats: selectedSeats,
       date: new Date().toLocaleString()
@@ -43,14 +53,14 @@ function SeatBooking({ movie, goBack }) {
 
     alert("Booking Confirmed!");
 
-    goBack();
+    navigate('/');
   };
 
   return (
 
-    <div className="flex flex-col">
+    <div className="flex flex-col my-2 text-center">
 
-      <h2 className="text-2xl font-bold">{movie.name}</h2>
+      <h2 className="text-2xl font-bold text-center">{movie.name}</h2>
 
       <div className="grid grid-cols-5 gap-2 justify-center w-[20%] m-auto">
 
@@ -85,7 +95,7 @@ function SeatBooking({ movie, goBack }) {
       <div className="flex flex-col gap-2 justify-center items-center">
 
         <button className="border m-auto py-1 px-2 rounded-lg bg-[#e07a5f] text-lg font-bold" onClick={confirmBooking}>Confirm Booking</button>
-        <button className="border m-auto py-1 px-2 rounded-lg bg-[#e07a5f] text-lg font-bold" onClick={goBack}>Back</button>
+        <button className="border m-auto py-1 px-2 rounded-lg bg-[#e07a5f] text-lg font-bold" onClick={() => navigate(-1)}>Back</button>
       </div>
 
     </div>
