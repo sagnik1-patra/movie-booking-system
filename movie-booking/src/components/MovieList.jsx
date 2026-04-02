@@ -11,6 +11,7 @@ function MovieList() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isloading, setIsLoading] = useState(false)
   const [page, setPage] = useState(1)
+  const[totalPage, setTotalPage] = useState(0)
   const handlePageChange = (e, value)=>{
     setPage(value)
   }
@@ -19,6 +20,7 @@ function MovieList() {
     const start = (page - 1) * 20;
     axios.get("https://api.tvmaze.com/shows")
       .then(res => {
+        setTotalPage(Math.ceil(res.data.length / 20));
         setMovies(res.data.slice(start, start + 20));
       });
 
@@ -28,8 +30,11 @@ function MovieList() {
     if(searchQuery.trim() === ""){
       const start = (page - 1) * 20;
       axios.get("https://api.tvmaze.com/shows")
-        .then(res=> setMovies(res.data.slice(start, start + 20)))
-      return 
+        .then(res => {
+          setTotalPage(Math.ceil(res.data.length / 20));
+          setMovies(res.data.slice(start, start + 20));
+        });
+      return
     }
     setIsLoading(true);
     axios.get(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(searchQuery)}`)
@@ -120,7 +125,7 @@ function MovieList() {
       </div>
       <div className="flex flex-1 justify-center items-center py-3 bg-white/30">
         <Stack spacing={2}>
-          <Pagination count={10} onChange={handlePageChange} shape="rounded" page={page} color="primary"/>
+          <Pagination count={totalPage} onChange={handlePageChange} shape="rounded" page={page} color="primary"/>
         </Stack>
       </div>
 
