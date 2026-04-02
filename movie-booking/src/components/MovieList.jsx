@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+import { Pagination, Stack } from "@mui/material";
 import '../App.css'
 function MovieList() {
   const navigate = useNavigate();
@@ -8,19 +10,25 @@ function MovieList() {
   const [movies, setMovies] = useState([]);
   const [searchQuery, setSearchQuery] = useState("")
   const [isloading, setIsLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const [start, setStart] = useState(0)
+  const handlePageChange = (e, value)=>{
+    setPage(value)
+    setStart(page-1)
+  }
 
   useEffect(() => {
     axios.get("https://api.tvmaze.com/shows")
       .then(res => {
-        setMovies(res.data.slice(0,20));
+        setMovies(res.data.slice(start,start+20));
       });
 
-  }, []);
+  }, [start, setStart]);
 
   const handleSearch = () =>{
     if(searchQuery.trim() === ""){
       axios.get("https://api.tvmaze.com/shows")
-        .then(res=> setMovies(res.data.slice(0,20)))
+        .then(res=> setMovies(res.data.slice(start,start+20)))
       return 
     }
     setIsLoading(true);
@@ -109,6 +117,11 @@ function MovieList() {
 
         ))}
 
+      </div>
+      <div className="flex flex-1 justify-center items-center py-3 bg-white/30">
+        <Stack spacing={2}>
+          <Pagination count={10} onChange={handlePageChange} shape="rounded" page={page} color="primary"/>
+        </Stack>
       </div>
 
     </div>
