@@ -4,6 +4,7 @@ import SeatBooking from "./components/SeatBooking";
 import BookingHistory from "./components/BookingHistory";
 import './App.css'
 
+
 function App() {
 
   const [selectedMovie, setSelectedMovie] = useState(null);
