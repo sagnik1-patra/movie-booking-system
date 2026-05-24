@@ -14,9 +14,27 @@ function MovieList() {
   const [isloading, setIsLoading] = useState(false)
   const [page, setPage] = useState(1)
   const[totalPage, setTotalPage] = useState(0)
+  const [suggestions, setSuggestions] = useState([]);
+  const[showSuggestion, setShowSuggestion] = useState(true);
   const handlePageChange = (e, value)=>{
     setPage(value)
   }
+    useEffect(() => {
+      if (searchQuery.trim() === "" || !showSuggestion) {
+        setSuggestions([]);
+        return;
+      }
+
+      const delaySearch = setTimeout(() => {
+        axios.get(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(searchQuery)}`)
+          .then((res) => {
+            const result = res.data.map((item) => item.show);
+            setSuggestions(result.slice(0, 5)); 
+          })
+          .catch(() => setSuggestions([]));
+      }, 300);
+      return () => clearTimeout(delaySearch);
+    }, [searchQuery, showSuggestion]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -30,7 +48,16 @@ function MovieList() {
       .catch(() => setIsLoading(false));
   }, [page]);
 
+    const handleSearchQuery = (e) => {
+      const val = e.target.value;
+      setSearchQuery(val)
+      setShowSuggestion(true)
+      if(val.trim()===""){
+        setSuggestions([]);
+      }
+    }
   const handleSearch = () =>{
+    setSuggestions([])
     if(searchQuery.trim() === ""){
       const start = (page - 1) * 20;
       axios.get(`https://api.tvmaze.com/shows?${page}`)
@@ -87,11 +114,35 @@ function MovieList() {
               placeholder="Search movies or shows"
               value={searchQuery}
               onKeyDown={handleKeyDown}
-              onChange={(e)=>setSearchQuery(e.target.value)}
+              onChange={handleSearchQuery}
               className="w-full pl-10 py-2 pr-4 rounded-xl border-2 border-[#3db405b]/30 bg-white/80
               shadow-md focus:outline-none  focus:border-[#e07a5f] focus:ring-2 focus:ring-[#e07a5f]/3 text-[#3d405b] placeholder-gray-400 transition-all duration-200 
               "
               />
+            {suggestions.length > 0 && (
+    <div className="absolute top-12 left-0 w-full bg-white shadow-lg rounded-xl z-50 overflow-hidden">
+      {suggestions.map((movie) => (
+        <div
+          key={movie.id}
+          className="flex items-center gap-3 p-3 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            setMovies([movie]);
+            setSuggestions([]);
+            setSearchQuery(movie.name);
+            setShowSuggestion(false);
+          }}
+        >
+          <img
+            src={movie.image?.medium}
+            alt={movie.name}
+            className="w-12 h-16 object-cover rounded"
+          />
+
+          <p className="font-medium">{movie.name}</p>
+        </div>
+      ))}
+    </div>
+  )}
           </div>
           <button
           onClick={handleSearch}
